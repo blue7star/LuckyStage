@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>活动报名</title>
+  <link rel="stylesheet" href="/event.css">
+</head>
+<body data-page="event">
+  <main class="page">
+    <header class="hero" id="hero">
+      <div class="hero-content">
+        <img id="event-logo" class="logo hidden" alt="活动 Logo">
+        <span class="eyebrow">EVENT · 活动报名</span>
+        <h1 id="event-title">正在加载活动</h1>
+        <p id="event-date" class="event-date hidden"></p>
+      </div>
+    </header>
+    <div class="content">
+      <section id="load-error" class="card hidden" role="alert"></section>
+      <section id="event-content" class="hidden">
+        <div class="event-meta">
+          <span id="participant-count"></span>
+          <a id="results-link" class="results-link" href="#">查看中奖结果 <span aria-hidden="true">↗</span></a>
+        </div>
+        <section id="event-description" class="card description hidden"></section>
+        <section id="registration-card" class="card">
+          <div class="section-head"><span class="step">01</span><div><h2>填写报名信息</h2><p>提交后即可参与本场活动抽奖</p></div></div>
+          <form id="registration-form">
+            <div id="fields" class="fields"></div>
+            <label class="consent"><input id="consent" type="checkbox" required><span>我同意所填信息仅用于本场活动报名与抽奖。</span></label>
+            <button id="submit-button" class="primary" type="submit">确认报名 <span aria-hidden="true">→</span></button>
+          </form>
+          <div id="registration-status" class="registration-status hidden" role="status"></div>
+        </section>
+      </section>
+      <footer>活动抽奖 · 由活动组织者提供</footer>
+    </div>
+  </main>
+  <script src="/event.js" defer></script>
+</body>
+</html>

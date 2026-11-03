@@ -1,0 +1,8 @@
+{
+  "description": "通用活动抽奖小程序",
+  "miniprogramRoot": "./",
+  "projectname": "活动抽奖",
+  "appid": "wx3faad66d842d9052",
+  "setting": { "urlCheck": true, "es6": true, "postcss": true, "minified": true },
+  "compileType": "miniprogram"
+}

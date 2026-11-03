@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>中奖结果</title>
+  <link rel="stylesheet" href="/event.css">
+</head>
+<body data-page="results">
+  <main class="page">
+    <header class="hero" id="hero">
+      <div class="hero-content">
+        <img id="event-logo" class="logo hidden" alt="活动 Logo">
+        <span class="eyebrow">EVENT · 中奖结果</span>
+        <h1 id="event-title">正在加载活动</h1>
+        <p id="event-date" class="event-date hidden"></p>
+      </div>
+    </header>
+    <div class="content">
+      <section id="load-error" class="card hidden" role="alert"></section>
+      <section id="event-content" class="hidden">
+        <div class="event-meta">
+          <a id="event-link" class="results-link" href="#"><span aria-hidden="true">←</span> 返回活动页</a>
+          <button id="refresh-results" class="refresh-button" type="button">刷新结果 ↻</button>
+        </div>
+        <section class="card results-intro"><span class="step">✦</span><div><h2>中奖名单</h2><p>抽奖结果由组织者在现场公布，刷新可查看最新结果。</p></div></section>
+        <div id="results" class="results"></div>
+      </section>
+      <footer>活动抽奖 · 由活动组织者提供</footer>
+    </div>
+  </main>
+  <script src="/event.js" defer></script>
+</body>
+</html>

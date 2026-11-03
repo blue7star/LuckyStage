@@ -1,0 +1,8 @@
+<view class="page" style="background-color:{{event ? event.theme.background : '#0b1730'}}">
+  <view class="header"><image wx:if="{{logoUrl}}" class="logo" src="{{logoUrl}}" mode="aspectFit" /><text class="symbol" style="color:{{event ? event.theme.primary : '#eac36d'}}">✦</text><text class="title">{{event ? event.title : '中奖结果'}}</text><text class="subtitle" style="color:{{event ? event.theme.primary : '#eac36d'}}">幸运名单</text></view>
+  <view class="card" wx:if="{{loading}}">正在加载中奖结果…</view>
+  <view class="card error" wx:elif="{{message}}">{{message}}</view>
+  <view class="card" wx:elif="{{!results.length}}">抽奖尚未开始，请稍后再来查看。</view>
+  <view class="card" wx:else><view class="result" wx:for="{{results}}" wx:key="prizeId"><view class="prize">{{item.roundName}} · {{item.prizeName}}</view><view class="winner" wx:for="{{item.winners}}" wx:for-item="winner" wx:key="id"><text class="medal">✦</text><text>{{winner.display}}</text></view></view></view>
+  <button class="refresh" bindtap="refresh">刷新结果</button>
+</view>

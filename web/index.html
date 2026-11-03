@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>活动抽奖管理台</title><link rel="stylesheet" href="/admin.css"></head>
+<body>
+<div id="login" class="login-wrap">
+  <form id="login-form" class="login-card">
+    <div class="brand-mark">✦</div><p class="eyebrow">ACTIVITY LOTTERY</p><h1>活动抽奖管理台</h1>
+    <p class="muted">管理名单、报名、主题与现场抽奖</p>
+    <label>管理员密码<input id="password" type="password" autocomplete="current-password" required placeholder="输入管理员密码"></label>
+    <button class="primary wide" type="submit">登录管理台</button><p id="login-error" class="error"></p>
+  </form>
+</div>
+<div id="app" class="shell hidden">
+  <aside class="sidebar">
+    <div class="sidebar-head"><span class="sidebar-logo">✦</span><div><strong>活动抽奖</strong><small>组织者控制台</small></div></div>
+    <div class="side-section"><div class="side-title">活动列表</div><button id="new-event" class="secondary wide" type="button">＋ 创建活动</button></div>
+    <div id="event-list" class="event-list"></div>
+    <div class="side-footer"><span>自有服务器版</span><button id="logout" class="text-button" type="button">退出</button></div>
+  </aside>
+  <main class="main">
+    <header class="topbar"><div><p class="eyebrow">EVENT WORKSPACE</p><h1 id="page-title">选择活动</h1></div><div class="top-actions"><a id="live-link" class="button secondary hidden" target="_blank" rel="noopener">打开现场大屏 ↗</a><button id="save-event" class="primary hidden" type="button">保存设置</button></div></header>
+    <div id="flash" class="flash hidden" role="status"></div>
+    <div id="empty" class="empty-card"><span>✦</span><h2>先创建一场活动</h2><p>每场活动有自己的名单、抽奖规则和页面主题。</p><button id="empty-create" class="primary" type="button">创建活动</button></div>
+    <div id="editor" class="hidden">
+      <div class="stats"><div><span>活动 ID</span><strong id="stat-id">—</strong></div><div><span>已参与</span><strong id="stat-people">0</strong></div><div><span>已抽奖项</span><strong id="stat-drawn">0</strong></div></div>
+      <nav class="tabs"><button data-tab="basic" class="active">活动信息</button><button data-tab="fields">报名字段</button><button data-tab="rounds">轮次与奖项</button><button data-tab="theme">页面主题</button><button data-tab="participants">参与名单</button><button data-tab="draw">现场抽奖</button></nav>
+      <section id="tab-basic" class="tab-pane card"><div class="section-heading"><div><h2>活动信息</h2><p>创建活动后，可把报名链接或二维码发给参与者。</p></div><span class="tag">基本设置</span></div>
+        <div class="form-grid"><label>活动名称<input id="event-title" maxlength="100"></label><label>活动时间<input id="event-date" type="datetime-local"></label>
+        <label>参与方式<select id="registration-mode"><option value="both">名单导入 + 扫码报名</option><option value="import">仅名单导入</option><option value="scan">仅扫码报名</option></select></label>
+        <label class="toggle-line"><input id="registration-open" type="checkbox"><span>开放扫码报名</span></label></div>
+        <label>活动说明<textarea id="event-description" rows="3" maxlength="500" placeholder="可写活动规则、参与提示"></textarea></label>
+        <div class="code-area"><div class="code-details"><h3>活动报名二维码</h3><p class="muted">参与者用微信或手机相机扫码，即可打开报名网页。请从参与者能访问的地址打开本管理台，再生成二维码。</p><label class="share-label">报名链接<input id="event-link-text" readonly aria-label="报名链接"></label><div class="share-actions"><a id="event-link" class="button secondary" target="_blank" rel="noopener">打开报名页 ↗</a><button id="copy-event-link" class="secondary" type="button">复制链接</button><button id="load-code" class="secondary" type="button">生成二维码</button></div><p id="local-link-note" class="hint hidden">当前是本机地址，手机扫码无法访问。先让服务器在手机可访问的地址上线，再从该地址打开管理台生成二维码。</p><p class="result-link-line">中奖结果：<a id="result-link" target="_blank" rel="noopener">打开结果页 ↗</a></p></div><div class="code-preview"><img id="code-image" class="hidden" alt="活动报名二维码"><a id="download-code" class="button secondary hidden" download="活动报名二维码.png">保存二维码</a></div></div>
+      </section>
+      <section id="tab-fields" class="tab-pane card hidden"><div class="section-heading"><div><h2>报名字段</h2><p>每场活动都可设置自己的表单。已有参与者后，字段设置会锁定。</p></div><button id="add-field" class="secondary" type="button">＋ 添加字段</button></div>
+        <div class="field-head"><span>字段标识</span><span>显示名称</span><span>类型</span><span>必填</span><span></span></div><div id="fields-list"></div>
+        <div class="form-grid lower"><label>去重依据<select id="unique-field"></select></label><label>中奖显示字段<select id="display-field"></select></label></div>
+        <p class="hint">去重字段须为必填。例如用手机号可避免同一手机号重复报名。导入名单和扫码报名共用此规则。</p>
+      </section>
+      <section id="tab-rounds" class="tab-pane hidden"><div class="section-heading"><div><h2>轮次与奖项</h2><p>每轮设置奖项和人数，可决定前轮中奖者是否再次参与。</p></div><button id="add-round" class="secondary" type="button">＋ 添加轮次</button></div><div id="rounds-list"></div></section>
+      <section id="tab-theme" class="tab-pane card hidden"><div class="section-heading"><div><h2>活动主题</h2><p>为每场活动配置独立的视觉素材，报名页和大屏会使用相同主题。</p></div><span class="tag">主题设置</span></div>
+        <div class="form-grid"><label>风格预设<select id="theme-preset"><option value="celebrate">庆典蓝金</option><option value="spring">清新花园</option><option value="formal">简约商务</option></select></label><label>主色<input id="theme-primary" type="color"></label><label>背景色<input id="theme-background" type="color"></label></div>
+        <div class="asset-grid"><div class="asset-box"><strong>报名页横幅</strong><img id="banner-preview" class="asset-preview hidden" alt="横幅预览"><input id="banner-file" type="file" accept="image/png,image/jpeg,image/webp"><button class="text-button remove-asset" data-asset="banner" type="button">移除横幅</button></div><div class="asset-box"><strong>大屏背景</strong><img id="backdrop-preview" class="asset-preview hidden" alt="背景预览"><input id="backdrop-file" type="file" accept="image/png,image/jpeg,image/webp"><button class="text-button remove-asset" data-asset="backdrop" type="button">移除背景</button></div><div class="asset-box"><strong>活动 Logo</strong><img id="logo-preview" class="asset-preview hidden" alt="Logo 预览"><input id="logo-file" type="file" accept="image/png,image/jpeg,image/webp"><button class="text-button remove-asset" data-asset="logo" type="button">移除 Logo</button></div></div>
+        <p class="hint">支持 PNG、JPEG、WebP，单张不超过 2 MB。建议横幅宽高比约 2:1，大屏背景 16:9。</p>
+        <div class="theme-previews"><div><h3>报名页预览</h3><div id="mini-preview" class="mini-preview"><div id="mini-preview-hero" class="mini-preview-hero"><img id="mini-preview-logo" alt="活动 Logo"><strong id="mini-preview-title">活动名称</strong></div><div class="mini-preview-form"><span>姓名</span><i></i><span>手机号</span><i></i><b id="mini-preview-button">提交报名</b></div></div></div><div><h3>大屏预览</h3><div id="screen-preview" class="screen-preview"><img id="screen-preview-logo" alt="活动 Logo"><strong id="screen-preview-title">活动名称</strong><span>一等奖 · 幸运抽奖</span><b>幸运即将揭晓</b></div></div></div>
+      </section>
+      <section id="tab-participants" class="tab-pane card hidden"><div class="section-heading"><div><h2>参与名单</h2><p>导入 Excel 另存的 UTF-8 CSV 文件，或让参与者扫码填写。</p></div><button id="refresh-people" class="secondary" type="button">刷新名单</button></div>
+        <div class="import-box"><label class="file-label">选择 CSV 文件<input id="csv-file" type="file" accept=".csv,text/csv"></label><button id="import-csv" class="primary" type="button" disabled>确认导入</button><p id="csv-preview" class="muted">CSV 首行写字段标识或显示名称。</p></div>
+        <div class="table-wrap"><table><thead id="people-head"></thead><tbody id="people-body"></tbody></table></div><p class="hint">此处显示最近 500 条；抽奖仍使用完整名单。</p>
+      </section>
+      <section id="tab-draw" class="tab-pane hidden"><div class="section-heading"><div><h2>现场抽奖</h2><p>先保存设置，再选择奖项抽取。每个奖项只会生成一份结果。</p></div><a id="draw-live-link" class="button secondary" target="_blank" rel="noopener">大屏展示 ↗</a></div><div id="draw-list"></div></section>
+    </div>
+  </main>
+</div>
+<script src="/admin.js"></script></body></html>

@@ -1,0 +1,25 @@
+<view class="page" style="background-color:{{event ? event.theme.background : '#0b1730'}}">
+  <view class="hero {{heroClass}}">
+    <image wx:if="{{bannerUrl}}" class="banner" src="{{bannerUrl}}" mode="aspectFill" />
+    <view wx:else class="hero-art">✦ <text>LUCKY DRAW</text> ✦</view>
+    <view class="hero-content" wx:if="{{event}}"><image wx:if="{{logoUrl}}" class="logo" src="{{logoUrl}}" mode="aspectFit" /><text class="kicker">活动报名</text><text class="hero-title">{{event.title}}</text><text class="hero-date">{{eventDate}}</text></view>
+  </view>
+  <view class="content-card" wx:if="{{loading}}"><text>正在加载活动…</text></view>
+  <view class="content-card" wx:elif="{{message}}"><text class="error">{{message}}</text></view>
+  <view class="content-card" wx:elif="{{event}}">
+    <view class="section-title">{{registered ? '您已参与本场活动' : '填写参与信息'}}</view>
+    <view class="description" wx:if="{{event.description}}">{{event.description}}</view>
+    <view wx:if="{{canRegister && !registered}}">
+      <view class="field" wx:for="{{fields}}" wx:key="key">
+        <text class="label">{{item.label}}<text wx:if="{{item.required}}" class="required"> *</text></text>
+        <input class="input" type="{{item.inputType}}" placeholder="请输入{{item.label}}" value="{{item.value}}" data-key="{{item.key}}" bindinput="onFieldInput" maxlength="120" />
+      </view>
+      <checkbox-group bindchange="onAgreement"><label class="agreement"><checkbox value="agree" color="{{event.theme.primary}}" /><text>我同意所填信息仅用于本活动报名与抽奖</text></label></checkbox-group>
+      <button class="submit" style="background-color:{{event.theme.primary}}" loading="{{submitting}}" bindtap="submit">提交报名</button>
+    </view>
+    <view wx:elif="{{!canRegister && !registered}}" class="closed">本活动当前不开放扫码报名。如已在预先名单中，请等待现场抽奖。</view>
+    <view wx:else class="registered">✓ 已登记，祝您好运！</view>
+    <button class="results-link" bindtap="openResults">查看中奖结果 →</button>
+  </view>
+  <view class="footer">幸运由此开始 · 感谢参与</view>
+</view>
