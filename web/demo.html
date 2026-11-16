@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#8f151d">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='14' y='14' width='36' height='36' rx='2' transform='rotate(45 32 32)' fill='%23f4ce7b'/%3E%3Ccircle cx='32' cy='32' r='7' fill='%23690f18'/%3E%3C/svg%3E">
+  <title>幸运时刻 · 动态抽奖演示</title>
+  <link rel="stylesheet" href="/screen.css">
+  <link rel="stylesheet" href="/demo.css">
+</head>
+<body data-theme="newyear">
+  <canvas id="atmosphere" aria-hidden="true"></canvas>
+  <div class="scene" aria-hidden="true"></div>
+
+  <main class="demo-shell">
+    <header class="topbar">
+      <a class="demo-brand" href="/demo" aria-label="幸运时刻演示中心首页">
+        <span class="brand-gem"><i></i></span>
+        <img id="brand-logo" class="brand-logo" src="/assets/geostar-logo.png" alt="吉奥时空 GeoStar" hidden>
+        <span class="brand-text"><strong>幸运时刻</strong><small>LUCKY MOMENT</small></span>
+      </a>
+      <div class="event-meta">
+        <span class="live-pill"><i></i> DEMO LIVE</span>
+        <span id="event-date">2027.01.01</span><span class="meta-divider"></span><span id="event-place">新年庆典主会场</span>
+      </div>
+      <div class="header-actions">
+        <button id="reset-button" class="icon-button" type="button" title="重新演示（R）" aria-label="重新演示">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M4 4v6h6M5.5 15a7 7 0 1 0 .5-7L4 10"/></svg>
+        </button>
+        <button id="fullscreen-button" class="icon-button" type="button" title="全屏展示（F）" aria-label="全屏展示">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <section class="event-heading">
+      <div class="heading-copy">
+        <p id="event-kicker" class="event-kicker"><span></span> NEW YEAR CELEBRATION <span></span></p>
+        <h1 id="event-title">新岁启幕 <em>·</em> 好运连连</h1>
+        <p id="event-subtitle" class="event-subtitle">2027 元旦迎新盛典 · 幸运抽奖</p>
+      </div>
+      <div class="participant-chip"><small>演示候选名单</small><strong><span id="participant-count">24</span><i>人</i></strong></div>
+    </section>
+
+    <section class="draw-layout">
+      <div class="draw-stage">
+        <div class="prize-heading">
+          <div class="round-marker"><span id="round-index">01</span><i>/</i><span>03</span></div>
+          <div><p id="round-label">第一轮 · 鸿运开场</p><h2 id="prize-name">新春鸿运奖</h2></div>
+          <div class="prize-quantity"><strong id="prize-count">3</strong><span>名幸运嘉宾</span></div>
+        </div>
+
+        <div id="winner-zone" class="winner-zone" data-count="3" aria-live="polite" aria-atomic="true"></div>
+        <div class="stage-reflection" aria-hidden="true"></div>
+
+        <div class="draw-controls">
+          <p id="draw-status" class="draw-status"><span class="status-dot"></span><span id="status-text">幸运已就绪，等待开启</span></p>
+          <button id="draw-button" class="draw-button" type="button">
+            <span class="button-shine"></span>
+            <svg class="button-icon" viewBox="0 0 24 24" fill="none"><path d="M8 5l11 7-11 7V5z"/></svg>
+            <span id="draw-button-text">开始抽奖</span>
+            <small>SPACE</small>
+          </button>
+          <p class="control-hint">空格 开始 / 揭晓 <i>·</i> 数字 1—5 切换主题 <i>·</i> F 全屏</p>
+        </div>
+      </div>
+
+      <aside class="history-panel">
+        <div class="history-head"><div><small>WINNERS ARCHIVE</small><h3>中奖名录</h3></div><span id="winner-total">00</span></div>
+        <div id="history-list" class="history-list">
+          <div class="history-empty"><span class="empty-emblem"><i></i></span><strong>虚位以待</strong><p>每一次揭晓，都值得被铭记</p></div>
+        </div>
+        <div class="history-foot"><span><i></i> 本地演示数据</span><span>不写入正式活动</span></div>
+      </aside>
+    </section>
+
+    <nav class="theme-switcher" aria-label="演示主题">
+      <button class="theme-card active" data-theme-value="newyear" type="button" aria-pressed="true">
+        <span class="theme-number">01</span><span class="theme-swatch swatch-newyear"><i></i><b></b></span>
+        <span class="theme-copy"><strong>新岁启幕</strong><small>元旦 · 东方庆典</small></span><span class="theme-active-mark"></span>
+      </button>
+      <button class="theme-card" data-theme-value="annual" type="button" aria-pressed="false">
+        <span class="theme-number">02</span><span class="theme-swatch swatch-annual"><i></i><b></b></span>
+        <span class="theme-copy"><strong>星耀之夜</strong><small>公司年会 · 黑金盛典</small></span><span class="theme-active-mark"></span>
+      </button>
+      <button class="theme-card" data-theme-value="tech" type="button" aria-pressed="false">
+        <span class="theme-number">03</span><span class="theme-swatch swatch-tech"><i></i><b></b></span>
+        <span class="theme-copy"><strong>未来共振</strong><small>科技年会 · 数字空间</small></span><span class="theme-active-mark"></span>
+      </button>
+      <button class="theme-card" data-theme-value="garden" type="button" aria-pressed="false">
+        <span class="theme-number">04</span><span class="theme-swatch swatch-garden"><i></i><b></b></span>
+        <span class="theme-copy"><strong>鎏光花园</strong><small>客户答谢 · 优雅艺术</small></span><span class="theme-active-mark"></span>
+      </button>
+      <button class="theme-card" data-theme-value="geospace" type="button" aria-pressed="false">
+        <span class="theme-number">05</span><span class="theme-swatch swatch-geospace"><i></i><b></b></span>
+        <span class="theme-copy"><strong>时空智绘</strong><small>对外展览 · 地信科技</small></span><span class="theme-active-mark"></span>
+      </button>
+    </nav>
+  </main>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="/screen.js"></script>
+  <script src="/demo.js"></script>
+</body>
+</html>
