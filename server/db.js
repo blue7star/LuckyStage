@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { randomInt } from 'node:crypto';
 import { DatabaseSync } from 'node:sqlite';
-import { defaultEvent, newId, normalizeValues, validateEvent } from './config.js';
+import { defaultEvent, newId, normalizePreset, normalizeValues, validateEvent } from './config.js';
 
 export function createStore(dataDir) {
   fs.mkdirSync(dataDir, { recursive: true });
@@ -27,9 +27,27 @@ export function createStore(dataDir) {
   const participantCount = db.prepare('SELECT COUNT(*) AS count FROM participants WHERE event_id=?');
   const drawRows = db.prepare('SELECT * FROM draw_results WHERE event_id=? ORDER BY drawn_at, rowid');
 
+  const listeners = new Map();
+  function subscribe(eventId, handler) {
+    const set = listeners.get(eventId) || new Set();
+    set.add(handler);
+    listeners.set(eventId, set);
+    return () => {
+      set.delete(handler);
+      if (!set.size) listeners.delete(eventId);
+    };
+  }
+
+  function emit(eventId, type, payload) {
+    listeners.get(eventId)?.forEach((handler) => { try { handler(type, payload); } catch {} });
+  }
+
   function getEvent(id) {
     const row = eventRow.get(id);
-    return row ? { id: row.id, ...JSON.parse(row.config_json), createdAt: row.created_at, updatedAt: row.updated_at } : null;
+    if (!row) return null;
+    const config = JSON.parse(row.config_json);
+    if (config.theme) config.theme.preset = normalizePreset(config.theme.preset);
+    return { id: row.id, ...config, createdAt: row.created_at, updatedAt: row.updated_at };
   }
 
   function listEvents() {
@@ -66,7 +84,9 @@ export function createStore(dataDir) {
     }
     db.prepare('UPDATE events SET config_json=?, updated_at=? WHERE id=?')
       .run(JSON.stringify(next), new Date().toISOString(), id);
-    return getEvent(id);
+    const updated = getEvent(id);
+    emit(id, 'config', publicEvent(id));
+    return updated;
   }
 
   function insertParticipants(id, rows, source) {
@@ -133,8 +153,13 @@ export function createStore(dataDir) {
       const prize = round?.prizes.find((item) => item.id === row.prize_id);
       return { roundId: row.round_id, roundName: round?.name || '已删除轮次',
         prizeId: row.prize_id, prizeName: prize?.name || '已删除奖项', drawnAt: row.drawn_at,
-        winners: JSON.parse(row.winners_json).map((personId) => ({ id: personId,
-          display: String(people.get(personId)?.[event.displayField] || '参与者') })) };
+        winners: JSON.parse(row.winners_json).map((personId) => {
+          const values = people.get(personId) || {};
+          const winner = { id: personId, display: String(values[event.displayField] || '参与者') };
+          const department = String(values.department || '').trim();
+          if (department) winner.department = department;
+          return winner;
+        }) };
     });
   }
 
@@ -173,7 +198,9 @@ export function createStore(dataDir) {
       db.prepare('INSERT INTO draw_results(event_id,round_id,prize_id,winners_json,drawn_at) VALUES(?,?,?,?,?)')
         .run(id, roundId, prizeId, JSON.stringify(winners), new Date().toISOString());
       db.exec('COMMIT');
-      return listResults(id).find((item) => item.roundId === roundId && item.prizeId === prizeId);
+      const result = listResults(id).find((item) => item.roundId === roundId && item.prizeId === prizeId);
+      emit(id, 'drawn', result);
+      return result;
     } catch (error) { db.exec('ROLLBACK'); throw error; }
   }
 
@@ -186,6 +213,18 @@ export function createStore(dataDir) {
       participantCount: participantCount.get(id).count };
   }
 
+  function participantPool(id) {
+    const event = getEvent(id);
+    if (!event) return null;
+    return db.prepare('SELECT values_json FROM participants WHERE event_id=?').all(id).map((row) => {
+      const values = JSON.parse(row.values_json);
+      const person = { display: String(values[event.displayField] || '参与者') };
+      const department = String(values.department || '').trim();
+      if (department) person.department = department;
+      return person;
+    });
+  }
+
   return { getEvent, listEvents, createEvent, updateEvent, insertParticipants, register,
-    listParticipants, listResults, drawPrize, publicEvent };
+    listParticipants, listResults, drawPrize, publicEvent, participantPool, subscribe };
 }

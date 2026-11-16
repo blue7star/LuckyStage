@@ -6,6 +6,13 @@ const colorPattern = /^#[0-9a-fA-F]{6}$/;
 
 export function newId() { return randomBytes(8).toString('hex'); }
 
+const presetAliases = { celebrate: 'newyear', spring: 'garden', formal: 'annual' };
+export function normalizePreset(value) {
+  const raw = String(value || '');
+  if (['newyear', 'annual', 'tech', 'garden', 'geospace'].includes(raw)) return raw;
+  return presetAliases[raw] || 'newyear';
+}
+
 export function defaultEvent() {
   return {
     title: '新活动', date: '', description: '', registrationMode: 'both',
@@ -18,7 +25,7 @@ export function defaultEvent() {
     uniqueField: 'phone', displayField: 'name',
     rounds: [{ id: newId(), name: '第一轮', allowPreviousWinners: false,
       prizes: [{ id: newId(), name: '一等奖', count: 1 }] }],
-    theme: { preset: 'celebrate', primary: '#2563eb', background: '#0b1730', banner: '', backdrop: '', logo: '' }
+    theme: { preset: 'newyear', primary: '#2563eb', background: '#0b1730', banner: '', backdrop: '', logo: '' }
   };
 }
 
@@ -70,7 +77,7 @@ export function validateEvent(input) {
     return { id, name: shortText(round.name, 40, '轮次名称'), allowPreviousWinners: !!round.allowPreviousWinners, prizes };
   });
   const themeInput = input.theme || {};
-  const preset = ['celebrate', 'spring', 'formal'].includes(themeInput.preset) ? themeInput.preset : 'celebrate';
+  const preset = normalizePreset(themeInput.preset);
   const primary = String(themeInput.primary || '#2563eb');
   const background = String(themeInput.background || '#0b1730');
   if (!colorPattern.test(primary) || !colorPattern.test(background)) throw new Error('主题颜色须为六位十六进制色值');

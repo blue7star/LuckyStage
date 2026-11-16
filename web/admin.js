@@ -40,7 +40,7 @@ function defaultConfig() {
     uniqueField: 'phone', displayField: 'name',
     rounds: [{ id: id(), name: '第一轮', allowPreviousWinners: false,
       prizes: [{ id: id(), name: '一等奖', count: 1 }] }],
-    theme: { preset: 'celebrate', primary: '#2563eb', background: '#0b1730', banner: '', backdrop: '', logo: '' } };
+    theme: { preset: 'newyear', primary: '#f4ce7b', background: '#690f18', banner: '', backdrop: '', logo: '' } };
 }
 
 function renderEvents() {
@@ -296,7 +296,7 @@ function wireEvents() {
   $('event-list').addEventListener('click', (event) => { const target = event.target.closest('[data-event]'); if (target) selectEvent(target.dataset.event).catch((error) => flash(error.message, true)); });
   $('save-event').addEventListener('click', saveEvent);
   $('theme-preset').addEventListener('change', (event) => {
-    const colors = { celebrate: ['#2563eb', '#0b1730'], spring: ['#3f9e72', '#153d37'], formal: ['#6687ad', '#172234'] };
+    const colors = { newyear: ['#f4ce7b', '#690f18'], annual: ['#d8b66e', '#08121d'], tech: ['#62e3d5', '#061a22'], garden: ['#9b763d', '#e9e2d2'], geospace: ['#4da3ff', '#081c33'] };
     [$('theme-primary').value, $('theme-background').value] = colors[event.target.value];
     renderThemePreview();
     flash('已应用预设配色；可继续上传素材，完成后点击保存设置。');

@@ -78,7 +78,7 @@ export function createApp(store, auth, dataDir, webDir) {
         return json(res, 200, { ok: true }, { 'Set-Cookie': sessionCookie(auth.issue(), secureRequest(req)) });
       }
 
-      const publicEventMatch = pathname.match(/^\/api\/public\/events\/([a-f0-9]{16})(?:\/(register|results))?$/);
+      const publicEventMatch = pathname.match(/^\/api\/public\/events\/([a-f0-9]{16})(?:\/(register|results|sample|stream))?$/);
       if (publicEventMatch) {
         const [, id, operation] = publicEventMatch;
         if (!operation && method === 'GET') {
@@ -90,6 +90,23 @@ export function createApp(store, auth, dataDir, webDir) {
           const results = store.listResults(id);
           if (!results) throw new HttpError(404, '活动不存在');
           return json(res, 200, { results });
+        }
+        if (operation === 'sample' && method === 'GET') {
+          const pool = store.participantPool(id);
+          if (!pool) throw new HttpError(404, '活动不存在');
+          return json(res, 200, { participants: pool });
+        }
+        if (operation === 'stream' && method === 'GET') {
+          const event = store.publicEvent(id);
+          if (!event) throw new HttpError(404, '活动不存在');
+          res.writeHead(200, { 'Content-Type': 'text/event-stream; charset=utf-8',
+            'Cache-Control': 'no-store', 'Connection': 'keep-alive', 'X-Accel-Buffering': 'no' });
+          const send = (type, data) => { try { res.write(`event: ${type}\ndata: ${JSON.stringify(data)}\n\n`); } catch {} };
+          const unsubscribe = store.subscribe(id, (type, payload) => send(type, payload));
+          send('snapshot', { event, results: store.listResults(id) });
+          const heartbeat = setInterval(() => { try { res.write(': ping\n\n'); } catch {} }, 25000);
+          req.on('close', () => { clearInterval(heartbeat); unsubscribe(); });
+          return;
         }
         if (operation === 'register' && method === 'POST') {
           const result = store.register(id, (await readJson(req, 16 * 1024)).values);
@@ -174,8 +191,10 @@ export function createApp(store, auth, dataDir, webDir) {
       if (method === 'GET') {
         if (pathname === '/' || pathname === '/admin') return sendFile(res, path.join(webDir, 'index.html'));
         if (pathname === '/live') return sendFile(res, path.join(webDir, 'live.html'));
+        if (pathname === '/demo') return sendFile(res, path.join(webDir, 'demo.html'));
         if (pathname === '/event' || pathname === '/results') return sendFile(res, path.join(webDir, `${pathname.slice(1)}.html`));
-        if (/^\/(admin|live|event)\.(css|js)$/.test(pathname)) return sendFile(res, path.join(webDir, pathname.slice(1)));
+        if (/^\/(admin|live|event|demo|screen)\.(css|js)$/.test(pathname)) return sendFile(res, path.join(webDir, pathname.slice(1)));
+        if (/^\/assets\/[\w-]+\.(png|webp|jpg)$/.test(pathname)) return sendFile(res, path.join(webDir, pathname.slice(1)));
         if (/^\/uploads\/[a-f0-9]{24}\.(png|jpg|webp)$/.test(pathname)) {
           const filename = path.join(uploadDir, path.basename(pathname));
           if (fs.existsSync(filename)) return sendFile(res, filename);
