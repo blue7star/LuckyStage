@@ -8,6 +8,9 @@ let results = [];
 let importRows = [];
 let activeTab = 'basic';
 let codeUrl = '';
+let themePreset = 'newyear';
+const presetColors = { newyear: ['#f4ce7b', '#690f18'], annual: ['#d8b66e', '#08121d'], tech: ['#62e3d5', '#061a22'], garden: ['#9b763d', '#e9e2d2'], geospace: ['#4da3ff', '#081c33'] };
+const presetNames = { newyear: '新岁启幕', annual: '星耀之夜', tech: '未来共振', garden: '鎏光花园', geospace: '时空智绘' };
 
 async function api(method, endpoint, data) {
   const response = await fetch(`/api${endpoint}`, { method, credentials: 'same-origin',
@@ -41,6 +44,16 @@ function defaultConfig() {
     rounds: [{ id: id(), name: '第一轮', allowPreviousWinners: false,
       prizes: [{ id: id(), name: '一等奖', count: 1 }] }],
     theme: { preset: 'newyear', primary: '#f4ce7b', background: '#690f18', banner: '', backdrop: '', logo: '' } };
+}
+
+function setThemePreset(preset, applyColors = false) {
+  themePreset = preset;
+  document.querySelectorAll('.theme-tpl').forEach((card) => card.classList.toggle('is-active', card.dataset.preset === preset));
+  if (applyColors && presetColors[preset]) {
+    [$('theme-primary').value, $('theme-background').value] = presetColors[preset];
+    if (current) renderThemePreview();
+    flash(`已应用「${presetNames[preset]}」模板配色；可继续上传素材，完成后点击保存设置。`);
+  }
 }
 
 function renderEvents() {
@@ -120,7 +133,7 @@ function renderEditor() {
   $('registration-mode').value = current.registrationMode;
   $('registration-open').checked = current.registrationOpen;
   $('event-description').value = current.description;
-  $('theme-preset').value = current.theme.preset;
+  setThemePreset(current.theme.preset);
   $('theme-primary').value = current.theme.primary;
   $('theme-background').value = current.theme.background;
   $('live-link').href = `/live?id=${encodeURIComponent(current.id)}`;
@@ -151,7 +164,7 @@ function collectDraft() {
     description: $('event-description').value.trim(), registrationMode: $('registration-mode').value,
     registrationOpen: $('registration-open').checked, fields, uniqueField: $('unique-field').value,
     displayField: $('display-field').value, rounds,
-    theme: { ...current.theme, preset: $('theme-preset').value, primary: $('theme-primary').value,
+    theme: { ...current.theme, preset: themePreset, primary: $('theme-primary').value,
       background: $('theme-background').value } };
 }
 
@@ -295,11 +308,13 @@ function wireEvents() {
   $('empty-create').addEventListener('click', createEvent);
   $('event-list').addEventListener('click', (event) => { const target = event.target.closest('[data-event]'); if (target) selectEvent(target.dataset.event).catch((error) => flash(error.message, true)); });
   $('save-event').addEventListener('click', saveEvent);
-  $('theme-preset').addEventListener('change', (event) => {
-    const colors = { newyear: ['#f4ce7b', '#690f18'], annual: ['#d8b66e', '#08121d'], tech: ['#62e3d5', '#061a22'], garden: ['#9b763d', '#e9e2d2'], geospace: ['#4da3ff', '#081c33'] };
-    [$('theme-primary').value, $('theme-background').value] = colors[event.target.value];
-    renderThemePreview();
-    flash('已应用预设配色；可继续上传素材，完成后点击保存设置。');
+  $('theme-gallery').addEventListener('click', (event) => {
+    if (event.target.closest('.tpl-demo')) return;
+    const card = event.target.closest('.theme-tpl');
+    if (card) setThemePreset(card.dataset.preset, true);
+  });
+  $('theme-gallery').addEventListener('keydown', (event) => {
+    if ((event.key === 'Enter' || event.key === ' ') && event.target.classList.contains('theme-tpl')) { event.preventDefault(); event.target.click(); }
   });
   for (const input of ['event-title', 'theme-primary', 'theme-background']) $(input).addEventListener('input', () => { if (current) renderThemePreview(); });
   document.querySelector('.tabs').addEventListener('click', (event) => { if (event.target.dataset.tab) setTab(event.target.dataset.tab); });

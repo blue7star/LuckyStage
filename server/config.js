@@ -25,7 +25,7 @@ export function defaultEvent() {
     uniqueField: 'phone', displayField: 'name',
     rounds: [{ id: newId(), name: '第一轮', allowPreviousWinners: false,
       prizes: [{ id: newId(), name: '一等奖', count: 1 }] }],
-    theme: { preset: 'newyear', primary: '#2563eb', background: '#0b1730', banner: '', backdrop: '', logo: '' }
+    theme: { preset: 'newyear', primary: '#f4ce7b', background: '#690f18', banner: '', backdrop: '', logo: '' }
   };
 }
 
