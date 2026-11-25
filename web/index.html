@@ -24,12 +24,26 @@
     <div id="editor" class="hidden">
       <div class="stats"><div><span>活动 ID</span><strong id="stat-id">—</strong></div><div><span>已参与</span><strong id="stat-people">0</strong></div><div><span>已抽奖项</span><strong id="stat-drawn">0</strong></div></div>
       <nav class="tabs"><button data-tab="basic" class="active">活动信息</button><button data-tab="fields">报名字段</button><button data-tab="rounds">轮次与奖项</button><button data-tab="theme">页面主题</button><button data-tab="participants">参与名单</button><button data-tab="draw">现场抽奖</button></nav>
-      <section id="tab-basic" class="tab-pane card"><div class="section-heading"><div><h2>活动信息</h2><p>创建活动后，可把报名链接或二维码发给参与者。</p></div><span class="tag">基本设置</span></div>
-        <div class="form-grid"><label>活动名称<input id="event-title" maxlength="100"></label><label>活动时间<input id="event-date" type="datetime-local"></label>
-        <label>参与方式<select id="registration-mode"><option value="both">名单导入 + 扫码报名</option><option value="import">仅名单导入</option><option value="scan">仅扫码报名</option></select></label>
-        <label class="toggle-line"><input id="registration-open" type="checkbox"><span>开放扫码报名</span></label></div>
-        <label>活动说明<textarea id="event-description" rows="3" maxlength="500" placeholder="可写活动规则、参与提示"></textarea></label>
-        <div class="code-area"><div class="code-details"><h3>活动报名二维码</h3><p class="muted">参与者用微信或手机相机扫码，即可打开报名网页。请从参与者能访问的地址打开本管理台，再生成二维码。</p><label class="share-label">报名链接<input id="event-link-text" readonly aria-label="报名链接"></label><div class="share-actions"><a id="event-link" class="button secondary" target="_blank" rel="noopener">打开报名页 ↗</a><button id="copy-event-link" class="secondary" type="button">复制链接</button><button id="load-code" class="secondary" type="button">生成二维码</button></div><p id="local-link-note" class="hint hidden">当前是本机地址，手机扫码无法访问。先让服务器在手机可访问的地址上线，再从该地址打开管理台生成二维码。</p><p class="result-link-line">中奖结果：<a id="result-link" target="_blank" rel="noopener">打开结果页 ↗</a></p></div><div class="code-preview"><img id="code-image" class="hidden" alt="活动报名二维码"><a id="download-code" class="button secondary hidden" download="活动报名二维码.png">保存二维码</a></div></div>
+      <section id="tab-basic" class="tab-pane card"><div class="section-heading"><div><h2>活动信息</h2><p>设置活动的基本内容、参与方式和报名入口；保存后报名页与现场大屏同步生效。</p></div><span class="tag">基本设置</span></div>
+        <div class="setting-group">
+          <h3 class="group-title"><span class="group-num">1</span><span>基本信息<small>活动名称会展示在报名页、大屏和结果页</small></span></h3>
+          <div class="form-grid"><label>活动名称<span class="counter" id="title-counter">0/100</span><input id="event-title" maxlength="100" placeholder="如：2027 元旦迎新盛典"></label><label>活动时间<input id="event-date" type="datetime-local"></label></div>
+          <label class="group-desc">活动说明<span class="counter" id="desc-counter">0/500</span><textarea id="event-description" rows="3" maxlength="500" placeholder="可写活动规则、参与提示"></textarea></label>
+        </div>
+        <div class="setting-group">
+          <h3 class="group-title"><span class="group-num">2</span><span>参与方式<small>决定参与名单如何形成，可随时调整</small></span></h3>
+          <select id="registration-mode" class="native-select" tabindex="-1" aria-hidden="true"><option value="both">名单导入 + 扫码报名</option><option value="import">仅名单导入</option><option value="scan">仅扫码报名</option></select>
+          <div class="mode-cards" role="radiogroup" aria-label="参与方式">
+            <label class="mode-card"><input type="radio" name="reg-mode" value="both"><span class="mode-name">名单导入 + 扫码报名</span><span class="mode-desc">组织者预先导入名单，同时开放扫码自助报名。适合公司年会、元旦庆典等内部大型活动。</span></label>
+            <label class="mode-card"><input type="radio" name="reg-mode" value="import"><span class="mode-name">仅名单导入</span><span class="mode-desc">名单完全由组织者提供，不开放自助报名。适合名单固定的小型闭门活动。</span></label>
+            <label class="mode-card"><input type="radio" name="reg-mode" value="scan"><span class="mode-name">仅扫码报名</span><span class="mode-desc">名单由现场扫码产生，随扫随抽。适合对外展览、开放日活动。</span></label>
+          </div>
+          <div class="switch-line" id="scan-switch"><span class="switch-copy"><strong>开放扫码报名</strong><small>暂停后，扫码者将看到“报名已截止”，已导入名单不受影响。</small></span><label class="switch-ui"><input id="registration-open" type="checkbox" aria-label="开放扫码报名"><span class="switch-track"></span></label></div>
+        </div>
+        <div class="setting-group">
+          <h3 class="group-title"><span class="group-num">3</span><span>分享与入口<small>把报名链接或二维码发给参与者</small></span></h3>
+          <div class="share-panel"><div class="share-main"><p class="share-note">参与者用微信或手机相机扫码，即可打开报名网页。请从参与者能访问的地址打开本管理台，再生成二维码。</p><label class="share-label">报名链接<input id="event-link-text" readonly aria-label="报名链接"></label><div class="share-actions"><a id="event-link" class="button secondary" target="_blank" rel="noopener">打开报名页 ↗</a><button id="copy-event-link" class="secondary" type="button">复制链接</button><button id="load-code" class="primary" type="button">生成二维码</button></div><p id="local-link-note" class="hint hidden">当前是本机地址，手机扫码无法访问。先让服务器在手机可访问的地址上线，再从该地址打开管理台生成二维码。</p><p class="result-link-line">中奖结果：<a id="result-link" target="_blank" rel="noopener">打开结果页 ↗</a></p></div><div class="share-code"><div class="code-frame"><span id="code-placeholder" class="code-placeholder"><b>▦</b>点击「生成二维码」<br>此处显示预览</span><img id="code-image" class="hidden" alt="活动报名二维码"></div><a id="download-code" class="button secondary hidden" download="活动报名二维码.png">保存二维码</a></div></div>
+        </div>
       </section>
       <section id="tab-fields" class="tab-pane card hidden"><div class="section-heading"><div><h2>报名字段</h2><p>每场活动都可设置自己的表单。已有参与者后，字段设置会锁定。</p></div><button id="add-field" class="secondary" type="button">＋ 添加字段</button></div>
         <div class="field-head"><span>字段标识</span><span>显示名称</span><span>类型</span><span>必填</span><span></span></div><div id="fields-list"></div>

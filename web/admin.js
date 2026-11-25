@@ -56,6 +56,17 @@ function setThemePreset(preset, applyColors = false) {
   }
 }
 
+function syncModeUi() {
+  const mode = $('registration-mode').value;
+  document.querySelectorAll('.mode-card input').forEach((radio) => { radio.checked = radio.value === mode; });
+  $('scan-switch').classList.toggle('is-irrelevant', mode === 'import');
+}
+
+function updateCounters() {
+  $('title-counter').textContent = `${$('event-title').value.length}/100`;
+  $('desc-counter').textContent = `${$('event-description').value.length}/500`;
+}
+
 function renderEvents() {
   $('event-list').innerHTML = events.map((event) => `<button class="event-item ${current?.id === event.id ? 'active' : ''}" data-event="${h(event.id)}"><strong>${h(event.title)}</strong><small>${event.participantCount} 人参与 · ${h(event.date || '未设置时间')}</small></button>`).join('');
 }
@@ -133,6 +144,8 @@ function renderEditor() {
   $('registration-mode').value = current.registrationMode;
   $('registration-open').checked = current.registrationOpen;
   $('event-description').value = current.description;
+  syncModeUi();
+  updateCounters();
   setThemePreset(current.theme.preset);
   $('theme-primary').value = current.theme.primary;
   $('theme-background').value = current.theme.background;
@@ -147,6 +160,7 @@ function renderEditor() {
   if (codeUrl) URL.revokeObjectURL(codeUrl);
   codeUrl = '';
   $('code-image').classList.add('hidden');
+  $('code-placeholder').classList.remove('hidden');
   $('download-code').classList.add('hidden');
 }
 
@@ -274,6 +288,7 @@ async function showCode() {
     codeUrl = URL.createObjectURL(await response.blob());
     $('code-image').src = codeUrl;
     $('code-image').classList.remove('hidden');
+    $('code-placeholder').classList.add('hidden');
     $('download-code').href = codeUrl;
     $('download-code').classList.remove('hidden');
   } catch (error) { flash(error.message, true); }
@@ -317,6 +332,11 @@ function wireEvents() {
     if ((event.key === 'Enter' || event.key === ' ') && event.target.classList.contains('theme-tpl')) { event.preventDefault(); event.target.click(); }
   });
   for (const input of ['event-title', 'theme-primary', 'theme-background']) $(input).addEventListener('input', () => { if (current) renderThemePreview(); });
+  for (const input of ['event-title', 'event-description']) $(input).addEventListener('input', updateCounters);
+  document.querySelectorAll('.mode-card input').forEach((radio) => radio.addEventListener('change', () => {
+    $('registration-mode').value = radio.value;
+    syncModeUi();
+  }));
   document.querySelector('.tabs').addEventListener('click', (event) => { if (event.target.dataset.tab) setTab(event.target.dataset.tab); });
   $('add-field').addEventListener('click', () => { current = collectDraft(); current.fields.push({ key: `field${current.fields.length + 1}`, label: '新字段', type: 'text', required: false }); renderEditor(); });
   $('fields-list').addEventListener('click', (event) => { if (!event.target.classList.contains('remove-field')) return; const index = Number(event.target.closest('.field-row').dataset.index); current = collectDraft(); current.fields.splice(index, 1); if (!current.fields.length) current.fields.push({ key: 'name', label: '姓名', type: 'text', required: true }); if (!current.fields.some((field) => field.key === current.uniqueField)) current.uniqueField = current.fields[0].key; if (!current.fields.some((field) => field.key === current.displayField)) current.displayField = current.fields[0].key; renderEditor(); });
