@@ -91,11 +91,20 @@ export function validateEvent(input) {
     theme: { preset, primary, background, banner: asset(themeInput.banner), backdrop: asset(themeInput.backdrop), logo: asset(themeInput.logo) } };
 }
 
+export function normalizePhone(value) {
+  const half = value.replace(/[\uFF01-\uFF5E]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xFEE0));
+  let digits = half.replace(/\D/g, '');
+  if (digits.startsWith('0086')) digits = digits.slice(4);
+  else if (digits.startsWith('86') && digits.length >= 13) digits = digits.slice(2);
+  return digits;
+}
+
 export function normalizeValues(config, values) {
   if (!values || typeof values !== 'object' || Array.isArray(values)) throw new Error('报名信息格式不正确');
   const result = {};
   for (const field of config.fields) {
-    const value = String(values[field.key] ?? '').trim();
+    let value = String(values[field.key] ?? '').trim();
+    if (field.type === 'tel') value = normalizePhone(value);
     if (field.required && !value) throw new Error(`${field.label}不能为空`);
     if (value.length > 120) throw new Error(`${field.label}不能超过120个字符`);
     if (field.type === 'number' && value && !/^-?\d+(\.\d+)?$/.test(value)) throw new Error(`${field.label}必须是数字`);

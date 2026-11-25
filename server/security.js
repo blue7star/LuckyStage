@@ -7,7 +7,7 @@ function safeEqual(left, right) {
 }
 
 export function createAuth(password, secret) {
-  if (!password || password.length < 12) throw new Error('请设置至少 12 位的 ADMIN_PASSWORD 环境变量');
+  if (!password || password.length < 6) throw new Error('请设置至少 6 位的 ADMIN_PASSWORD 环境变量');
   if (!secret || secret.length < 32) throw new Error('请设置至少 32 位的 SESSION_SECRET 环境变量');
   const salt = randomBytes(24).toString('hex');
   const passwordHash = createHmac('sha256', salt).update(password).digest('hex');

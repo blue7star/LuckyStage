@@ -65,7 +65,7 @@ export function createApp(store, auth, dataDir, webDir) {
       if (pathname === '/api/health' && method === 'GET') return json(res, 200, { ok: true });
 
       if (pathname === '/api/admin/login' && method === 'POST') {
-        const ip = req.socket.remoteAddress || 'unknown';
+        const ip = String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.socket.remoteAddress || 'unknown';
         const previous = loginAttempts.get(ip);
         const state = previous && previous.until > Date.now() ? previous : { count: 0, until: 0 };
         if (state.count >= 10 && state.until > Date.now()) throw new HttpError(429, '尝试次数过多，请稍后再试');
